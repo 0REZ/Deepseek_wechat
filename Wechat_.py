@@ -4,17 +4,17 @@ from openai import OpenAI
 import re
 
 
-
+URL = input("Base URL:")
 apikey =input("密钥(sk-xxxx):")
 Modelname = input("模型名称: ")
 chatgroup = input("监听的群聊:")
-# agentname = "@"+input("助手昵称:")
+
 systemprot = input("角色(系统提示词):")
 
 
 
 
-client = OpenAI(api_key=apikey, base_url="https://api.siliconflow.cn/v1")
+client = OpenAI(api_key=apikey, base_url=URL)
 
 wx = WeChat()
 
@@ -52,7 +52,7 @@ while True:
 
 
                     try:
-                        messagea = "我是" + msgall[0] + ",请回答我的问题:" + msgall[1].replace(agentname, "")
+                        messagea =  msgall[0] +" 向你提问:" + msgall[1].replace(agentname, "")
                         print("提问:" + messagea)
 
                         messages.append({"role": "user", "content": messagea})
@@ -67,7 +67,9 @@ while True:
                         assistant_reply = response.choices[0].message.content
                         assistant_reply = remove_extra_newlines(assistant_reply)
                         total_tokens_used = response.usage.total_tokens
-                        wx.SendMsg(assistant_reply + "(Token:" + str(total_tokens_used) + ")", who=match.group(1))
+                        wx.SendMsg(assistant_reply, who=match.group(1))
+
+                        messages.append({"role": "assistant", "content": assistant_reply})
 
                         max_history = 15  # 保留最近15轮对话（用户和助手交替）
                         system_messages = [msg for msg in messages if msg["role"] == "system"]  # 提取所有系统消息
